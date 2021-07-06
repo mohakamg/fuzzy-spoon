@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sineestimator
+  labels:
+    app: sineestimator
+    version: linear
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: sineestimator
+      version: linear
+  template:
+    metadata:
+      labels:
+        app: sineestimator
+        version: linear
+    spec:
+      containers:
+      - name: linearmodel
+        image: mohakamg/sineestimator:linear
+        ports:
+        - containerPort: 8501
+          name: http-port
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: lnrestimator
+spec:
+  type: ClusterIP
+  selector:
+    app: sineestimator
+    version: linear
+  ports:
+    - protocol: TCP
+      port: 8501
+      targetPort: http-port

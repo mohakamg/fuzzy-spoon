@@ -1,0 +1,47 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: atlas
+  region: us-east-2
+  version: '1.19'
+  tags:
+    # Add more cloud tags if needed for billing
+    environment: atlas
+
+availabilityZones: ["us-east-2a","us-east-2b", "us-east-2c"]
+
+cloudWatch:
+    clusterLogging:
+        # enable specific types of cluster control plane logs
+        enableTypes: ["audit", "authenticator", "controllerManager"]
+        # all supported types: "api", "audit", "authenticator", "controllerManager", "scheduler"
+        # supported special values: "*" and "all"
+
+nodeGroups:
+  - name: overhead
+    desiredCapacity: 2
+    ssh: # import public key from file
+      publicKeyPath: ~/.ssh/id_rsa.pub
+      allow: true
+    minSize: 0
+    maxSize: 3
+    # Set one nodegroup with 100GB volumes for non GPU components to get deployed.
+    volumeSize: 100
+    volumeType: gp2
+    instanceType: t2.medium
+    availabilityZones: ["us-east-2a", "us-east-2b", "us-east-2c"]
+    labels:
+      node-class: "worker-node"
+    tags:
+      # EC2 tags required for cluster-autoscaler auto-discovery
+      k8s.io/cluster-autoscaler/node-template/label/lifecycle: OnDemand
+      k8s.io/cluster-autoscaler/node-template/label/aws.amazon.com/spot: "false"
+      k8s.io/cluster-autoscaler/node-template/label/gpu-count: "0"
+      k8s.io/cluster-autoscaler/enabled: "true"
+      k8s.io/cluster-autoscaler/atlas: "owned"
+    iam:
+      withAddonPolicies:
+        albIngress: true
+        autoScaler: true
+        cloudWatch: true

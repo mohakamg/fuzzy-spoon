@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nonlinestimator
+  labels:
+    app: sineestimator
+    version: nonlinear
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: sineestimator
+      version: nonlinear
+  template:
+    metadata:
+      labels:
+        app: sineestimator
+        version: nonlinear
+    spec:
+      containers:
+      - name: nonlinearmodel
+        image: mohakamg/sineestimator:nonlinear
+        ports:
+        - containerPort: 8501
+          name: http-port
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nonlnrestimator
+spec:
+  type: ClusterIP
+  selector:
+    app: sineestimator
+    version: nonlinear
+  ports:
+    - protocol: TCP
+      port: 8501
+      targetPort: http-port

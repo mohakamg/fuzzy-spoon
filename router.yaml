@@ -1,0 +1,26 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: estimator
+spec:
+  hosts:
+  - "nonlnrsine.default.example.com"
+  gateways:
+  - edge
+  http:
+  - name: "sineestimator"
+    route:
+    - destination:
+        host: nonlnrsine-00001
+        port: 
+          number: 8501
+#    - destination:
+#        host: lnrestimator
+#        port:
+#          number: 8501
+#      weight: 50
+#    - destination:
+#        host: nonlnrestimator
+#        port:
+#          number: 8501
+#      weight: 50
